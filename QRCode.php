@@ -45,6 +45,38 @@ class QRCode
     }
 
     /**
+     * Substitui as cores preto e branco pelas informadas.
+     * @param array $colors Example:
+     *   [  
+     *       'black' => [34, 78, 99],
+     *       'white' => [100, 77, 190],
+     *   ]
+     */
+    public function colorize(array $colors)
+    {
+        if (!self::$qrcode) {
+            throw new Exception('No QR Code defined yet. Should call `generate()` method before.');
+        }
+        imagetruecolortopalette(self::$qrcode, true, 255);
+        
+        if (isset($colors['black'])) {
+            if (count($colors['black']) !== 3) {
+                throw new Exception('Expects the 3 channels of RGB. '.count($colors).' was passed.');
+            }
+            $index000 = imagecolorclosest(self::$qrcode, 0, 0, 0);
+            imagecolorset(self::$qrcode, $index000, ...$colors['black']);
+        }
+        if (isset($colors['white'])) {
+            if (count($colors['white']) !== 3) {
+                throw new Exception('Expects the 3 channels of RGB. '.count($colors).' was passed.');
+            }
+            $indexFFF = imagecolorclosest(self::$qrcode, 255, 255, 255);
+            imagecolorset(self::$qrcode, $indexFFF, ...$colors['white']);
+        }
+        return new self;
+    }
+
+    /**
      * Adiciona a imagem no centro do QR Code.
      * @param $filepath Caminho da imagem como se estivesse no diretório public
      *                  Ex: "./images/logo.png"
@@ -74,7 +106,6 @@ class QRCode
             $width, // Source width.
             $height, // Source height.
         );
-
         return new self;
     }
 
